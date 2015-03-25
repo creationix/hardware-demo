@@ -19,7 +19,7 @@ cd hardware-demo
 luvit demo.lua
 ```
 
-Press the buttons and see the lights light up.  After 100 state changes it will exit gracefully.
+Press the buttons and see the lights light up.
 
 This uses pigpio's notification system with a little basic logic to debounce a little (combining events that come in at once).  The libuv event loop is running optimally and gets push events from pigpio via a named fifo pipe.
 
