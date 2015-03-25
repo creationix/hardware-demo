@@ -1,11 +1,6 @@
 local uv = require('uv')
 local pig = require('pig')
 
-local alive = true
-
-
-
-
 local function main()
 
   local req, watch, cleanup = pig()
