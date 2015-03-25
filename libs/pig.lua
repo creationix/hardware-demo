@@ -3,13 +3,12 @@ local ffi = require('ffi')
 
 ffi.cdef[[
 int open(const char *pathname, int flags);
-typedef struct __attribute__ ((__packed__))
-{
+struct __attribute__ ((__packed__)) gpioReport {
   uint16_t seqno;
   uint16_t flags;
   uint32_t tick;
   uint32_t level;
-} gpioReport_t;
+};
 ]]
 local C = ffi.C
 local O_WRONLY = uv.constants.O_WRONLY
@@ -81,7 +80,7 @@ return function ()
       assert(not err, err)
 --      p("<*" .. index, data)
       if #data < 12 then return end 
-      local events = ffi.cast("gpioReport_t*", data)
+      local events = ffi.cast("struct gpioReport*", data)
       local event = events + (#data / 12 - 1)
       if waiting then
         local thread
