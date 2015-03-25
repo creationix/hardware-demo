@@ -20,22 +20,19 @@ local function main()
   print "Reseting outputs to low"
   req("w " .. table.concat(outputs, " 0 w ") .. " 0") 
  
-  uv.new_signal():start("sigint", function ()
-    coroutine.wrap(function ()
-      print "Reseting outputs to low"
-      req("w " .. table.concat(outputs, " 0 w ") .. " 0") 
-      print "Cleaning pig library resources"
-      cleanup()
-      print "Closing all libuv handles"
-      uv.walk(function (handle)
-        if not handle:is_closing() then
-          handle:close()
-        end
-      end)
-      uv.stop()
-    end)()
-    
-  end)
+  uv.new_signal():start("sigint", coroutine.wrap(function ()
+    print "Reseting outputs to low"
+    req("w " .. table.concat(outputs, " 0 w ") .. " 0")
+    print "Cleaning pig library resources"
+    cleanup()
+    print "Closing all libuv handles"
+    uv.walk(function (handle)
+      if not handle:is_closing() then
+        handle:close()
+      end
+    end)
+    uv.stop()
+  end))
 
   print "Waiting for changes to inputs and writing state to outputs"
   print "Press Control+C to exit"
