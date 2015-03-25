@@ -8,44 +8,6 @@ local udp = uv.new_udp()
 local bridgeHost = "192.168.1.110"
 local bridgePort = 8899
 
-
-local function joyLoop()
-  for struct in read do
-    local event = {
-      struct = struct,
-      time = struct.time,
-      number = struct.number,
-      value = struct.value
-    }
-    if bit.band(struct.type, 0x80) > 0 then event.init = true end
-    if bit.band(struct.type, 0x01) > 0 then event.type = "button" end
-    if bit.band(struct.type, 0x02) > 0 then event.type = "axis" end
-
-    p(event)
-    if event.type == "button" then
-      local target = event.number == 0 and 6 
-        or event.number == 1 and 13
-        or event.number == 2 and 19
-        or event.number == 3 and 26 or nil
-      if target then
-        req("w " .. target .. " " .. event.value)
-      end
-    end
-
-  end
-  close()
-end
-
-local function delay(ms)
-  local thread = coroutine.running()
-  local timer = uv.new_timer()
-  timer:start(ms, 0, function ()
-    timer:close()
-    coroutine.resume(thread)
-  end)
-  coroutine.yield()
-end
-
 local colors = {
   0x15, -- blue
   0xb0, -- red
@@ -63,6 +25,60 @@ local colors = {
   0x90, -- yellow + green + red
   0xf0, -- yellow + green + red + blue
 }
+
+local function joyLoop()
+  local buttons = {}
+  for struct in read do
+    local event = {
+      struct = struct,
+      time = struct.time,
+      number = struct.number,
+      value = struct.value
+    }
+    if bit.band(struct.type, 0x80) > 0 then event.init = true end
+    if bit.band(struct.type, 0x01) > 0 then event.type = "button" end
+    if bit.band(struct.type, 0x02) > 0 then event.type = "axis" end
+
+    p(event)
+    if event.type == "button" then
+      buttons[event.number] = event.value == 1 or nil
+      local target = event.number == 0 and 6 
+        or event.number == 1 and 13
+        or event.number == 2 and 19
+        or event.number == 3 and 26 or nil
+      if target then
+        req("w " .. target .. " " .. event.value)
+        local code = bit.bor(
+          buttons[0] and 4 or 0,
+          buttons[1] and 2 or 0,
+          buttons[2] and 1 or 0,
+          buttons[3] and 8 or 0
+        )
+        if code > 0 then
+          udp:send("\x42\x00\x55", bridgeHost, bridgePort)
+          local color = colors[code]
+          udp:send("\x40" .. string.char(color) .. "\x55", bridgeHost, bridgePort)
+        else
+          udp:send("\x41\x00\x55", bridgeHost, bridgePort)
+        end
+      end
+    end
+
+  end
+  close()
+end
+
+local function delay(ms)
+  local thread = coroutine.running()
+  local timer = uv.new_timer()
+  timer:start(ms, 0, function ()
+    timer:close()
+    coroutine.resume(thread)
+  end)
+  coroutine.yield()
+end
+
+
 
 local function buttonLoop()
   for struct in wait do
