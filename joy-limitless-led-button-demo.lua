@@ -42,7 +42,7 @@ local function joyLoop()
     p(event)
     if event.type == "button" then
       buttons[event.number] = event.value == 1 or nil
-      local target = event.number == 0 and 6 
+      local target = event.number == 0 and 6
         or event.number == 1 and 13
         or event.number == 2 and 19
         or event.number == 3 and 26 or nil
@@ -115,13 +115,13 @@ end
 local function main()
   read, close = makeJoy(0)
   req, watch, cleanup = pig()
- 
+
   print "Setting pins 6, 13, 19, and 26 as output"
   req "m 6 w m 13 w m 19 w m 26 w"
- 
+
   print "Setting pins 4, 5, 17, and 27 as input"
   req "m 4 r m 5 r m 17 r m 27 r"
-      
+
   print "Enabling internal pull-down resistors on inputs"
   req "pud 4 d pud 5 d pud 17 d pud 27 d"
 

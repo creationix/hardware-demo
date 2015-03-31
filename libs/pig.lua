@@ -40,7 +40,7 @@ return function ()
   pigout:read_start(function (err, data)
     assert(not err, err)
 --    p("<-", data)
-    if not data then 
+    if not data then
       if waiting then error("pigout closed") end
       return
     end
@@ -79,7 +79,7 @@ return function ()
     pipe:read_start(function (err, data)
       assert(not err, err)
 --      p("<*" .. index, data)
-      if #data < 12 then return end 
+      if #data < 12 then return end
       local events = ffi.cast("struct gpioReport*", data)
       local event = events + (#data / 12 - 1)
       if waiting then
@@ -92,7 +92,7 @@ return function ()
     end)
 
     assert(req("nb " .. index .. " " .. bitfield) == 0)
-    
+
     return function ()
       if extra then
         local event
