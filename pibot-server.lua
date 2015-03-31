@@ -1,4 +1,3 @@
-local uv = require('uv')
 local pig = require('pig')
 local tcp = require('coro-tcp')
 
