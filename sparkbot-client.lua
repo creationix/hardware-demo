@@ -30,13 +30,13 @@ local function makeBot(host, port)
     if not write then return end
     if bot.x == ox and bot.y == oy then return end
     ox, oy = bot.x, bot.y
-    local left, right = bot.y / 128 - bot.x / 128, bot.y / 128 + bot.x / 128
+    local left, right = bot.y / 128 + bot.x / 128, bot.y / 128 - bot.x / 128
     -- left, right = 0, 0
     local l1, l2, r1, r2
     if left < -20 then
-      l1, l2 = math.min(math.floor(-left), 255), 0
+      l1, l2 = 0, math.min(math.floor(-left), 255)
     elseif left > 20 then
-      l1, l2 = 0, math.min(math.floor(left), 255)
+      l1, l2 = math.min(math.floor(left), 255), 0
     else
       l1, l2 = 0, 0
     end
@@ -74,7 +74,7 @@ G.Gamepad_axisMoveFunc(function (struct, axis, value)
     bot = makeBot(host, port)
     players[struct] = bot
   end
-  if axis == 3 then -- x axis
+  if axis == 2 then -- x axis
     bot.x = -value * 256 * 128
   elseif axis == 1 then -- y axis
     bot.y = value * 256 * 128
