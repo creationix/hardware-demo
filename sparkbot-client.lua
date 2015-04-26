@@ -10,7 +10,6 @@ local bots = {
 }
 
 local function makeBot(host, port)
-p{host=host,port=port}
   local ox, oy, read, write
   local bot = {
     host = host,
@@ -19,9 +18,12 @@ p{host=host,port=port}
   }
 
   coroutine.wrap(function ()
+    print("Connecting", host, port)
     read, write = assert(tcp.connect(host, port))
-    write("\0\14\1\0\15\1\0\16\1\0\17\1\2\14\0\2\15\0\2\16\0\2\17\0")
-    print("Connected to remote " .. host)
+    print("Connected!" )
+    local line = "\0\14\1\0\15\1\0\16\1\0\17\1\2\14\0\2\15\0\2\16\0\2\17\0"
+    p(line)
+    write(line)
   end)()
 
   function bot.tick()
@@ -45,8 +47,10 @@ p{host=host,port=port}
     else
       r1, r2 = 0, 0
     end
-    local line = string.format("\2\14%s\2\15%s\2\16%s\2\17%s",
-      string.char(l1), string.char(l2), string.char(r1), string.char(r2))
+    local line = "\2\14" .. string.char(l1)
+              .. "\2\15" .. string.char(l2)
+              .. "\2\16" .. string.char(r1)
+              .. "\2\17" .. string.char(r2)
     p(line)
     write(line)
   end
